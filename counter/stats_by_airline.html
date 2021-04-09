@@ -1,0 +1,55 @@
+<html>
+
+<head>
+    
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript" src="../static/request.js"></script>
+    <script type="text/javascript">
+          google.charts.load('current', {'packages':['corechart']});
+    </script>
+</head>
+
+<body>
+    <div id="chart"></div>
+    <script type="text/javascript">
+        var chart = {
+            "data_received":function(data)
+            {
+                var div = document.getElementById("chart");
+                var columns = [
+                        {"id":"T", "label":"Time", "type":"datetime"},
+                ];
+                for( airline of data.airlines )
+                    columns.push({"id":airline, "label":airline, "type":"number"});
+                
+                for( row of data.rows )
+                    row[0] = new Date(row[0]*1000);
+            
+                var data_table = new google.visualization.arrayToDataTable(
+                    [columns].concat(data.rows)
+                );
+            
+                var chart = new google.visualization.SteppedAreaChart(div);
+                const options = {
+                    width:1000, height:600,
+                    lineWidth:1, legend:{position:"top"},
+                    title: 'Flight count by airline for top 5 airlines',
+                    areaOpacity: 0.8,
+                    isStacked: true,
+                    vAxis: {title: 'Flights/hour'}
+                };
+                chart.draw(data_table, options);
+            }
+        }
+        
+        function draw_chart()
+        {
+            var request = HTTPRequest("../data/stats_by_airline?window={{window}}", chart);
+        }
+
+        google.charts.setOnLoadCallback(draw_chart);
+
+    </script>
+</body>
+
+</html>
